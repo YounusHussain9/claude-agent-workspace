@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# approve: the approver signs one gate of a feature. Run it yourself in a terminal, never via Claude.
+# Usage: bin/approve <feature> <requirement|design|plan>
+# Shows what you are approving, asks y/N, then appends "<Gate>-approved-by: <you> <date>" to plan.md.
+set -eu
+root="$(cd "$(dirname "$0")/.." && pwd)"
+feature="${1:-}"; gate="${2:-}"
+case "$gate" in requirement|design|plan) ;; *) echo "usage: bin/approve <feature> <requirement|design|plan>"; exit 2 ;; esac
+dir="$root/docs/features/$feature"
+plan="$dir/plan.md"
+[ -f "$plan" ] || { echo "No $plan"; exit 1; }
+
+approver=$(grep -m1 -E '^Approver:' "$root/workspace.md" | sed -E 's/^Approver:[[:space:]]*//; s/[[:space:]]*$//')
+me=$(git config --global user.name || true)
+[ "$me" = "$approver" ] || { echo "Only $approver can approve (git user here: '${me:-none}')."; exit 1; }
+[ -t 0 ] || { echo "Run this in your own terminal (it asks for confirmation)."; exit 1; }
+
+Gate="$(printf '%s' "$gate" | cut -c1 | tr a-z A-Z)$(printf '%s' "$gate" | cut -c2-)"
+grep -qE "^${Gate}-approved-by:" "$plan" && { echo "$Gate is already approved:"; grep -E "^${Gate}-approved-by:" "$plan"; exit 0; }
+
+echo "── $feature · $Gate gate ──"
+[ -f "$dir/APPROVAL.md" ] && sed -n '1,60p' "$dir/APPROVAL.md" || sed -n '1,40p' "$plan"
+[ "$gate" = design ] && ls "$dir/design" 2>/dev/null | sed 's/^/  design\//'
+printf '\nApprove %s for %s? [y/N] ' "$Gate" "$feature"
+read -r ok
+[ "$ok" = y ] || [ "$ok" = Y ] || { echo "Not approved."; exit 1; }
+printf '\n%s-approved-by: %s %s\n' "$Gate" "$approver" "$(date '+%Y-%m-%d %H:%M')" >> "$plan"
+echo "Signed. Tell Claude: \"$gate approved\"."

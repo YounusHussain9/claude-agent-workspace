@@ -1,0 +1,21 @@
+# Copy to docker/compose.yml. One service per repo; the service name = the repo folder name = the profile.
+# The repo code is mounted, so code changes need no rebuild. Add "all" to every service's profiles.
+services:
+  shop-web:
+    profiles: ["shop-web", "all"]
+    image: node:20
+    working_dir: /app
+    volumes: ["../shop-web:/app"]
+    command: sh -c "npm install && npm run dev -- -p 3000"
+    ports: ["3000:3000"]
+    environment:
+      # Inside a container, localhost is the container itself. Reach other apps on the host like this:
+      API_URL: http://host.docker.internal:8080
+
+  shop-api:
+    profiles: ["shop-api", "all"]
+    image: node:20
+    working_dir: /app
+    volumes: ["../shop-api:/app"]
+    command: sh -c "npm install && npm run dev"
+    ports: ["8080:8080"]

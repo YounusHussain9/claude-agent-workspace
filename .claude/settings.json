@@ -1,0 +1,73 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node bin/scan-repos.js:*)",
+      "Bash(node bin/api-scan.js:*)",
+      "Bash(node bin/api-get.js:*)",
+      "Bash(node bin/data-count.js:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git blame:*)",
+      "Bash(git branch --show-current)"
+    ],
+    "ask": [
+      "mcp__claude_ai_Shortcut__stories-create",
+      "mcp__claude_ai_Shortcut__stories-update",
+      "mcp__claude_ai_Shortcut__stories-create-comment",
+      "mcp__claude_ai_Shortcut__stories-add-task",
+      "mcp__claude_ai_Shortcut__stories-update-task",
+      "mcp__claude_ai_Shortcut__epics-create",
+      "mcp__claude_ai_Shortcut__epics-update",
+      "mcp__claude_ai_Shortcut__epics-delete"
+    ],
+    "deny": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(git pull:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(git reset:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git apply:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(bin/approve:*)",
+      "Bash(./bin/approve:*)",
+      "Read(./.secrets/**)",
+      "Edit(./.secrets/**)",
+      "Write(./.secrets/**)",
+      "Read(./**/.env)",
+      "Read(./**/.env.*)",
+      "Edit(./**/.env)",
+      "Edit(./**/.env.*)",
+      "Write(./**/.env)",
+      "Write(./**/.env.*)",
+      "Edit(./bin/approve)",
+      "Write(./bin/approve)",
+      "Edit(./.claude/hooks/**)",
+      "Write(./.claude/hooks/**)",
+      "Edit(./.claude/settings.json)",
+      "Write(./.claude/settings.json)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/approval-gate.sh" }]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/no-self-approve.sh" }]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/bash-guard.sh" }]
+      }
+    ]
+  }
+}

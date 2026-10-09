@@ -1,0 +1,28 @@
+# Ignore everything at the top level (your linked repos, local files),
+# then allow only the kit itself.
+/*
+!/.gitignore
+!/.claude/
+!/bin/
+!/docs/
+!/docker/
+!/examples/
+!/apis/
+!/.secrets/
+!/CLAUDE.md
+!/workspace.md
+!/README.md
+!/LICENSE
+!/CONTRIBUTING.md
+
+# Secrets and raw data never go to git.
+.secrets/*
+!.secrets/tokens.env.example
+docs/data/*
+!docs/data/.gitkeep
+docs/features/*
+!docs/features/.gitkeep
+docker/.env
+apis/*.md
+!apis/README.md
+.DS_Store
